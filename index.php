@@ -177,10 +177,10 @@ $interests = $connection->query('select * from `interests`');
             </form>
 
             <?php if( $_POST['comment']) {
-              $comment = $_POST['comment'];
-              $name = $_POST['name'];
+              $comment = htmlspecialchars( $_POST['comment']);
+              $name = htmlspecialchars( $_POST['name']);
 
-              if( !strpos($comment, 'редиска'))
+              if( strpos(strtolower($comment), "редиска")===false  &&  strpos(strtolower($name), "редиска")===false)
                   $connection->query("insert into comments (comment, name) values ( '$comment', '$name')");
 
             }
