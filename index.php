@@ -1,16 +1,21 @@
 <?php
+session_start();
 
-//$connection = new PDO('mysql:host=jktu.ru; dbname=selto149_php; charset=utf8', 'selto149_php', 'AcademyPHP2@');
+if( $_POST['admin']) {
 
-$connection = new mysqli('jktu.ru', 'selto149_php', 'AcademyPHP2@', 'selto149_php');
-if ($connection->connect_errno) {
-  printf("Не удалось подключиться: %s\n", $connection->connect_error);
-  exit();
+  header('Location: admin.php');
+  die();
 }
 
 
+$connection = new PDO('mysql:host=jktu.ru; dbname=selto149_php; charset=utf8', 'selto149_php', 'AcademyPHP2@');
+if ($connection->errorCode()){
+  printf("Не удалось подключиться: %s\n", $connection->errorCode());
+//  exit();
+}
+
 $profile= $connection->query('select * from profile');
-$profile=$profile->fetch_all();
+$profile=$profile->fetchAll();
 
 $educations = $connection->query('select * from educations');
 $experiences = $connection->query('select * from experiences');
@@ -19,12 +24,7 @@ $projects = $connection->query('select * from `projects`');
 $languages = $connection->query('select * from `languages`');
 $interests = $connection->query('select * from `interests`');
 
-
-
-//$commUsers = $connection->query('select * from `comments`');
-//var_dump($commUsers);
-
-
+$prep = $connection->prepare("insert into `comments` (`comment`, `name`) values ( :comment, :name)");
 
 ?>
 
@@ -49,6 +49,7 @@ $interests = $connection->query('select * from `interests`');
     
     <!-- Theme CSS -->  
     <link id="theme-style" rel="stylesheet" href="assets/css/styles.css">
+    <link id="ok-style" rel="stylesheet" href="ok.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -167,39 +168,41 @@ $interests = $connection->query('select * from `interests`');
                 </div>  
             </section><!--//skills-section-->
 
-            <form action="#" method="POST">
-                <textarea name="comment" id="fo_ta" cols="30" rows="5" placeholder="Отправить отзыв"></textarea>
+            <div class="frms">
+                <form method="POST">
+                    <textarea name="comment" id="fo_ta" cols="40" rows="5" placeholder="Отправить отзыв"></textarea>
+                    <input style="display: block;" name="name" type="text" id="fo_input" placeholder="Имя">
+                    <button>Отправить отзыв</button>
 
-                <input name="name" type="text" id="fo_input">Имя
-                <button>Отправить отзыв</button>
+                </form>
 
-
-            </form>
+                <form method="POST" style="margin: 40px; font-size: 40px;">
+                    <button name="admin" value="admin">
+                    <i class="fa fa-angellist ">
+    <!--                    <input style="font-size: 30px;" type="submit" name="login" value="">-->
+                    </i>
+                    </button>
+                </form>
+            </div>
 
             <?php if( $_POST['comment']) {
               $comment = htmlspecialchars( $_POST['comment']);
               $name = htmlspecialchars( $_POST['name']);
 
               if( strpos(strtolower($comment), "редиска")===false  &&  strpos(strtolower($name), "редиска")===false)
-                  $connection->query("insert into comments (comment, name) values ( '$comment', '$name')");
-
+                  $prep->execute(array('comment'=>$comment, 'name'=>$name));
             }
 
-
-
-              $commUsers = $connection->query('select * from comments order by idate DESC');
+              $commUsers = $connection->query("select * from comments where status='ok' order by idate DESC");
               $cnt = 1;
+//              var_dump($_POST);
               foreach($commUsers as $comment){ ?>
 
-            <div style="font-size: 14px; margin: auto;">
-              #<?=$cnt++?>. <?=$comment['name']?>. <?=$comment['idate']?> - <?=$comment['comment']?>
-            </div>
+                <div style="font-size: 14px; margin: auto;">
+                  #<?=$cnt++?>. <?=$comment['name']?>. <?=$comment['idate']?> - <?=$comment['comment']?>
+                </div>
 
-            <?php
-
-            }
-
-            ?>
+              <?php } ?>
 
         </div><!--//main-body-->
     </div>

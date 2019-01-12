@@ -113,3 +113,19 @@ CREATE TABLE `selto149_php`.`comments` (
   `ip` VARCHAR(20) NULL,
   PRIMARY KEY (`id`));
 
+
+
+CREATE TABLE selto149_php.login (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user varchar(20) NOT NULL,
+  pass varchar(40) NOT NULL,
+  email varchar(50) NOT NULL,
+  role varchar(10) NOT NULL DEFAULT 'user',
+  PRIMARY KEY (id)
+)
+ENGINE = INNODB,
+AUTO_INCREMENT = 7,
+AVG_ROW_LENGTH = 16384,
+CHARACTER SET utf8,
+COLLATE utf8_general_ci;
+
